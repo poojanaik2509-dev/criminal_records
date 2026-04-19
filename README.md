@@ -41,8 +41,8 @@ A professional Database Management System (DBMS) built with **Python Flask** and
 ##  Default Credentials
 | Role | Username | Password |
 | :--- | :--- | :--- |
-| **Admin** | `Admin` | `password` |
-| **User** | `User` | `password` |
+| **Admin** | `Admin` | `Admin123` |
+| **User** | `User` | `User123` |
 
 ---
 *Developed as part of a DBMS Mini Project.*
