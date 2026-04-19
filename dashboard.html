@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block header %}System Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 1.5rem;
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+
+    .icon-blue { background: rgba(37, 99, 235, 0.1); color: #2563eb; }
+    .icon-red { background: rgba(220, 38, 38, 0.1); color: #dc2626; }
+    .icon-green { background: rgba(22, 163, 74, 0.1); color: #16a34a; }
+    .icon-purple { background: rgba(147, 51, 234, 0.1); color: #9333ea; }
+
+    .stat-info h3 {
+        margin: 0;
+        font-size: 1.8rem;
+        color: #0f172a;
+    }
+    .stat-info p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+</style>
+
+{% if session['role'] == 'Admin' %}
+    <div class="stats-container">
+        <div class="glass-card stat-card">
+            <div class="stat-icon icon-red"><i class="fa-solid fa-users"></i></div>
+            <div class="stat-info">
+                <h3>{{ criminal_count }}</h3>
+                <p>Criminals</p>
+            </div>
+        </div>
+        <div class="glass-card stat-card">
+            <div class="stat-icon icon-blue"><i class="fa-solid fa-folder-open"></i></div>
+            <div class="stat-info">
+                <h3>{{ case_count }}</h3>
+                <p>Cases</p>
+            </div>
+        </div>
+        <div class="glass-card stat-card">
+            <div class="stat-icon icon-green"><i class="fa-solid fa-gavel"></i></div>
+            <div class="stat-info">
+                <h3>{{ crime_count }}</h3>
+                <p>Crimes Logged</p>
+            </div>
+        </div>
+        <div class="glass-card stat-card">
+            <div class="stat-icon icon-purple"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="stat-info">
+                <h3>{{ police_count }}</h3>
+                <p>Officers</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-card" style="text-align: center; padding: 4rem 2rem; margin-top: 2rem;">
+        <!-- LARGE SEARCH BOX for Admin -->
+        <h2 style="margin-bottom: 2rem; color: var(--text-muted); font-weight: 400;">Quick Dossier Retrieval</h2>
+        <div style="max-width: 700px; margin: 0 auto;">
+            <form action="/criminals" method="GET" style="display: flex; gap: 10px;">
+                <div style="position: relative; flex: 1;">
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                    <input type="text" name="q" placeholder="Enter Full Criminal Name (e.g. James Anderson)..." 
+                           style="box-sizing: border-box; width: 100%; padding: 1.5rem 1.5rem 1.5rem 3.5rem; border-radius: 12px; border: 2px solid var(--primary); font-size: 1.1rem; box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.1);">
+                </div>
+                <button type="submit" class="btn btn-primary" style="padding: 0 2rem; border-radius: 12px; font-size: 1.1rem; flex-shrink: 0; white-space: nowrap;">Generate Report</button>
+            </form>
+        </div>
+    </div>
+{% else %}
+    <div class="glass-card" style="text-align: center; padding: 4rem 2rem; margin-top: 2rem;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 1rem;"><i class="fa-solid fa-user-shield" style="color: #10b981;"></i> Family Access Portal</h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2rem;">Welcome, <strong>{{ session['username'] }}</strong>. You are currently viewing case records strictly limited to your authorized family relations.</p>
+        
+        <div style="display: flex; gap: 20px; justify-content: center;">
+            <a href="/criminals" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem;"><i class="fa-solid fa-user-tag"></i> My Related Dossier</a>
+            <a href="/cases" class="btn btn-primary" style="background: #64748b; padding: 1rem 2rem; font-size: 1.1rem;"><i class="fa-solid fa-folder-open"></i> Full Case History</a>
+        </div>
+    </div>
+{% endif %}
+
+{% endblock %}

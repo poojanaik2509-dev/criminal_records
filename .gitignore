@@ -1,0 +1,25 @@
+# Python binaries and cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Environments
+venv/
+env/
+.env
+
+# IDEs
+.vscode/
+.idea/
+
+# Database / Local tests
+scratch/
+test_ga.py
+test_user.py
+*.bak
+*.log
+
+# Project specific ignores (if any)
+# criminal mini FINALLLL (2).sql 

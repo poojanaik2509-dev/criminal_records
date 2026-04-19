@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block header %}Court Cases{% endblock %}
+
+{% block content %}
+{% if session['role'] == 'Admin' %}
+<div class="glass-card" style="margin-bottom: 2rem;">
+    <h2><i class="fa-solid fa-folder-plus"></i> Open New Case</h2>
+    <form action="/add_case" method="POST">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Case Number*</label>
+                <input type="text" name="case_number" required>
+            </div>
+            <div class="form-group">
+                <label>Case Title*</label>
+                <input type="text" name="case_title" required>
+            </div>
+            <div class="form-group">
+                <label>Crime Involved*</label>
+                <select name="crime_id" required>
+                    <option value="">-- Select Crime --</option>
+                    {% for crime in crimes_list %}
+                        <option value="{{ crime.CrimeID }}">{{ crime.CrimeType }} (#{{ crime.CrimeID }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Court Location*</label>
+                <select name="court_id" required>
+                    <option value="">-- Select Court --</option>
+                    {% for court in courts_list %}
+                        <option value="{{ court.CourtID }}">{{ court.CourtName }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Defense Lawyer*</label>
+                <select name="lawyer_id" required>
+                    <option value="">-- Select Lawyer --</option>
+                    {% for lawyer in lawyers_list %}
+                        <option value="{{ lawyer.LawyerID }}">{{ lawyer.FirstName }} {{ lawyer.LastName }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Assigned Officer*</label>
+                <select name="officer_id" required>
+                    <option value="">-- Select Officer --</option>
+                    {% for officer in officers_list %}
+                        <option value="{{ officer.OfficerID }}">{{ officer.FirstName }} {{ officer.LastName }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Filing Date*</label>
+                <input type="date" name="filed_date" required>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select name="status">
+                    <option value="Open">Open</option>
+                    <option value="Under Investigation">Under Investigation</option>
+                    <option value="In Trial">In Trial</option>
+                    <option value="Closed">Closed</option>
+                    <option value="Dismissed">Dismissed</option>
+                    <option value="Appealed">Appealed</option>
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="margin-top: 1rem;"><i class="fa-solid fa-plus"></i> File Case</button>
+    </form>
+</div>
+{% endif %}
+
+<div class="glass-card" style="overflow-x: auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2><i class="fa-solid fa-folder-open"></i> Cases Roster</h2>
+        
+        <form action="/cases" method="GET" style="display: flex; gap: 10px;">
+            <input type="text" name="q" value="{{ search_query }}" placeholder="Search by title, number..." style="width: 250px;">
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+            {% if search_query %}
+                <a href="/cases" class="btn btn-danger" style="background: #64748b; padding: 10px;"><i class="fa-solid fa-xmark"></i></a>
+            {% endif %}
+        </form>
+    </div>
+    <table style="white-space: nowrap;">
+        <thead>
+            <tr>
+                <th>Case Number</th>
+                <th>Title</th>
+                <th>Court Location</th>
+                <th>Hearing Date</th>
+                <th>Verdict</th>
+                <th>Status</th>
+                <th>Handling Officer</th>
+                <th>Criminal Involved</th>
+                {% if session['role'] == 'Admin' %}<th>Actions</th>{% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+            <tr>
+                <td style="color: var(--primary); font-family: monospace;">{{ row.CaseNumber }}</td>
+                <td style="font-weight: 600;">{{ row.CaseTitle }}</td>
+                <td><i class="fa-solid fa-building-columns"></i> {{ row.CourtName or 'Pending' }}</td>
+                <td>{{ row.HearingDate or 'TBD' }}</td>
+                <td>
+                    {% if row.Verdict == 'Guilty' %}
+                        <span style="color: #dc2626; font-weight: bold;"><i class="fa-solid fa-gavel"></i> {{ row.Verdict }}</span>
+                    {% elif row.Verdict == 'Not Guilty' or row.Verdict == 'Acquitted' %}
+                        <span style="color: #16a34a; font-weight: bold;"><i class="fa-solid fa-scale-balanced"></i> {{ row.Verdict }}</span>
+                    {% elif row.Verdict == 'Dismissed' %}
+                        <span style="color: #64748b;"><i class="fa-solid fa-xmark"></i> {{ row.Verdict }}</span>
+                    {% else %}
+                        <span style="color: #d97706;">{{ row.Verdict or 'Pending' }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <span style="background: rgba(0, 0, 0, 0.05); color: var(--text-main); border: 1px solid var(--border); padding: 4px 8px; border-radius: 4px;">{{ row.CaseStatus }}</span>
+                </td>
+                <td style="font-size: 0.9rem;">
+                    <i class="fa-solid fa-user-shield"></i> {{ row.Officer_FName }} {{ row.Officer_LName }}
+                </td>
+                <td style="font-weight: 600;">
+                    {% if row.C_FirstName %}
+                        {{ row.C_FirstName }} {{ row.C_LastName }}
+                    {% else %}
+                        <span style="color: var(--text-muted)">N/A</span>
+                    {% endif %}
+                </td>
+                {% if session['role'] == 'Admin' %}
+                <td>
+                    <a href="/delete_case/{{ row.CaseID }}" class="btn btn-danger" onclick="return confirm('Delete this case record?');"><i class="fa-solid fa-trash"></i></a>
+                </td>
+                {% endif %}
+            </tr>
+            {% else %}
+            <tr><td colspan="9" style="text-align: center; padding: 2rem;">No cases found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

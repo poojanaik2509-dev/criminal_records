@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block header %}Crime Reporting{% endblock %}
+
+{% block content %}
+<div class="glass-card" style="margin-bottom: 2rem;">
+    <h2><i class="fa-solid fa-gavel"></i> Log New Crime Incident</h2>
+    <form action="/add_crime" method="POST">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Crime Type/Category*</label>
+                <input type="text" name="crime_type" required>
+            </div>
+            <div class="form-group">
+                <label>Severity*</label>
+                <select name="severity" required>
+                    <option value="Minor">Minor</option>
+                    <option value="Moderate">Moderate</option>
+                    <option value="Serious">Serious</option>
+                    <option value="Heinous">Heinous</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Date Occurred*</label>
+                <input type="date" name="date_occurred" required>
+            </div>
+            <div class="form-group">
+                <label>Location</label>
+                <input type="text" name="location">
+            </div>
+            <div class="form-group">
+                <label>Criminal Involved*</label>
+                <select name="criminal_id" required>
+                    <option value="">-- Select Criminal --</option>
+                    {% for criminal in criminals_list %}
+                        <option value="{{ criminal.CriminalID }}">{{ criminal.FirstName }} {{ criminal.LastName }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Reporting Officer*</label>
+                <select name="officer_id" required>
+                    <option value="">-- Select Officer --</option>
+                    {% for officer in officers_list %}
+                        <option value="{{ officer.OfficerID }}">{{ officer.FirstName }} {{ officer.LastName }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+                <label>Incident Description</label>
+                <input type="text" name="description" style="width: 100%;">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="margin-top: 1rem;"><i class="fa-solid fa-plus"></i> Submit Report</button>
+    </form>
+</div>
+
+<div class="glass-card" style="overflow-x: auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2><i class="fa-solid fa-list-ul"></i> Incident Master Log</h2>
+        
+        <form action="/crimes" method="GET" style="display: flex; gap: 10px;">
+            <input type="text" name="q" value="{{ search_query }}" placeholder="Search crimes, locations..." style="width: 250px;">
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+            {% if search_query %}
+                <a href="/crimes" class="btn btn-danger" style="background: #64748b; padding: 10px;"><i class="fa-solid fa-xmark"></i></a>
+            {% endif %}
+        </form>
+    </div>
+    <table style="white-space: nowrap;">
+        <thead>
+            <tr>
+                <th>Incident ID</th>
+                <th>Type</th>
+                <th>Severity</th>
+                <th>Location</th>
+                <th>Date</th>
+                <th>Criminal Involved</th>
+                <th>Linked Case</th>
+                {% if session['role'] == 'Admin' %}<th>Actions</th>{% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+            <tr>
+                <td>#{{ row.CrimeID }}</td>
+                <td style="font-weight: 600;">{{ row.CrimeType }}</td>
+                <td>
+                    {% if row.Severity == 'Heinous' %}
+                        <span style="color: #dc2626; font-weight: bold;">{{ row.Severity }}</span>
+                    {% elif row.Severity == 'Serious' %}
+                        <span style="color: #ea580c;">{{ row.Severity }}</span>
+                    {% elif row.Severity == 'Moderate' %}
+                        <span style="color: #ca8a04;">{{ row.Severity }}</span>
+                    {% else %}
+                        <span style="color: #2563eb;">{{ row.Severity }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ row.Location or '-' }}</td>
+                <td>{{ row.DateOccurred or '-' }}</td>
+                <td>
+                    {% if row.C_FirstName %}
+                        {{ row.C_FirstName }} {{ row.C_LastName }}
+                    {% else %}
+                        <span style="color: var(--text-muted)">Unknown</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if row.CaseTitle %}
+                        {{ row.CaseTitle }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                {% if session['role'] == 'Admin' %}
+                <td>
+                    <a href="/delete_crime/{{ row.CrimeID }}" class="btn btn-danger" onclick="return confirm('Delete this record?');"><i class="fa-solid fa-trash"></i></a>
+                </td>
+                {% endif %}
+            </tr>
+            {% else %}
+            <tr><td colspan="8" style="text-align: center; padding: 2rem;">No incidents found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
