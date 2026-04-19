@@ -1,1 +1,2 @@
-# criminal_records
+# criminal_records system 
+A web-based application built using HTML, CSS, JavaScript, Python (Flask), and SQL Server to manage criminal records, cases, crimes, and related entities. The system supports role-based access for Admin and Users, where admins can perform full CRUD operations and users can view personalized criminal reports. It demonstrates database management, API connectivity, and full-stack integration with real-world functionality
